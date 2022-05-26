@@ -1,0 +1,13 @@
+[package]
+name = "piston-js"
+version = "0.1.0"
+edition = "2021"
+description = "write desktop ganes in javascript"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+piston_window = "*"
+clap = { version = "3.1.18", features = ["derive"] }
+quick-js = "0.4.1"
+futures = { version ="0.3", features = ["thread-pool"] }
