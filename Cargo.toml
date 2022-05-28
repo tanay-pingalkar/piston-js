@@ -10,4 +10,3 @@ description = "write desktop ganes in javascript"
 piston_window = "*"
 clap = { version = "3.1.18", features = ["derive"] }
 quick-js = "0.4.1"
-futures = { version ="0.3", features = ["thread-pool"] }
