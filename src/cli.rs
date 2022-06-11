@@ -10,6 +10,5 @@ pub struct Cli {
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     #[clap(about = "to run game `piston-js run")]
-    Run
+    Run { file: String },
 }
-
