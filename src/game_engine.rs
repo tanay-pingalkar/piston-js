@@ -16,7 +16,6 @@ struct Config {
 pub enum Msg {
     Clear([f32; 4]),
     Rect(Color, [f64; 4]),
-    Exit,
 }
 
 pub struct GameEngine<'s, 'i> {
@@ -73,7 +72,7 @@ impl<'s, 'i> GameEngine<'s, 'i> {
 
     pub fn get_config(&mut self) -> &mut Self {
         let config = self.runtime.get_fn("Config").unwrap();
-        let config = self.runtime.call_fn(config);
+        let config = self.runtime.call_fn(config, &[]);
         self.config = serde_v8::from_v8(&mut self.runtime.context_scope, config).unwrap();
         self
     }
@@ -90,9 +89,12 @@ impl<'s, 'i> GameEngine<'s, 'i> {
     pub fn start_game_loop(&mut self) {
         let window = self.window.as_mut().unwrap();
         while let Some(event) = window.next() {
-            self.runtime.call_fn(self.update_fn);
+            let input = event.button_args();
+            let input = serde_v8::to_v8(&mut self.runtime.context_scope, input).unwrap();
+
+            self.runtime.call_fn(self.update_fn, &[input]);
             window.draw_2d(&event, |ctx, gfx, _device| {
-                self.runtime.call_fn(self.draw_fn);
+                self.runtime.call_fn(self.draw_fn, &[]);
                 while let Ok(msg) = self.rx.try_recv() {
                     match msg {
                         Msg::Clear(rgba) => {
@@ -106,7 +108,6 @@ impl<'s, 'i> GameEngine<'s, 'i> {
                                 gfx,
                             );
                         }
-                        _ => {}
                     }
                 }
             });

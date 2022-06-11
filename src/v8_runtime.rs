@@ -24,11 +24,10 @@ impl<'s, 'i> Runtime<'s, 'i> {
                 |scope: &mut v8::HandleScope,
                  args: v8::FunctionCallbackArguments,
                  mut _retval: v8::ReturnValue| {
-                    let message = args
-                        .get(0)
-                        .to_string(scope)
-                        .unwrap()
-                        .to_rust_string_lossy(scope);
+                    let message = args.get(0);
+
+                    let message: serde_json::Value = serde_v8::from_v8(scope, message).unwrap();
+                    let message = message.to_string();
 
                     println!("{}", message);
                 },
@@ -67,10 +66,14 @@ impl<'s, 'i> Runtime<'s, 'i> {
         }
     }
 
-    pub fn call_fn(&mut self, func: v8::Local<'s, v8::Function>) -> v8::Local<'s, v8::Value> {
+    pub fn call_fn(
+        &mut self,
+        func: v8::Local<'s, v8::Function>,
+        args: &[v8::Local<v8::Value>],
+    ) -> v8::Local<'s, v8::Value> {
         let global = self.context.global(&mut self.context_scope).into();
 
-        func.call(&mut self.context_scope, global, &[]).unwrap()
+        func.call(&mut self.context_scope, global, args).unwrap()
     }
 
     pub fn get_fn(&mut self, fn_name: &str) -> Result<v8::Local<'s, v8::Function>, &str> {
